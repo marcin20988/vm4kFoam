@@ -101,6 +101,19 @@ Foam::vm4kModel::vm4kModel(
     mesh_,
     dimensionedScalar("a", dimDensity, 0.0)
   ),
+  F_
+  (
+    IOobject
+    (
+      "kineticDissipation",
+      mesh_.time().timeName(),
+      mesh_,
+      IOobject::NO_READ,
+      IOobject::AUTO_WRITE
+    ),
+    mesh_,
+    dimensionedVector("a", dimVelocity / dimTime, vector(0.0, 0.0, 0.0))
+  ),
   E1_
   (
     IOobject
@@ -181,7 +194,8 @@ void Foam::vm4kModel::update
 (
     const volScalarField& T,
     const volScalarField& epsilon,
-    const volScalarField& nu
+    const volScalarField& nu,
+    const volVectorField& F
 )
 {
    
@@ -189,6 +203,7 @@ void Foam::vm4kModel::update
   dissipation_ = epsilon;
   cd_ = - fluid_.dragCoeff() 
       / dispersedPhase().rho() * dispersedPhase();
+  F_ = F;
   tau_ = nu / (T + 2.0 * cd_ * cd_);
   tau_ = min(tau_, dimensionedScalar("a", dimTime, 1e-04));
   E1_ = - dissipation_ * tau_ / T_ / (1.0f - 4.0f * cd_ * tau_);

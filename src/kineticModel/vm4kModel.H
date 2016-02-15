@@ -67,6 +67,7 @@ class vm4kModel
         volScalarField T_;
         volScalarField dissipation_;
         volScalarField rho_;
+        volVectorField F_;
         volScalarField E1_;
         volScalarField E2_;
         volScalarField cd_;
@@ -99,7 +100,8 @@ public:
         void update(
             const volScalarField& T,
             const volScalarField& epsilon,
-            const volScalarField& nu
+            const volScalarField& nu,
+            const volVectorField& F
         );
 
         const phaseModel& dispersedPhase() const;
