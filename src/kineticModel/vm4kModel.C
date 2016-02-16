@@ -165,6 +165,19 @@ Foam::vm4kModel::vm4kModel(
     ),
     mesh_,
     dimensionedScalar("a", dimTime, 0.0)
+  ),
+  aParameter_
+  (
+    IOobject
+    (
+      "aParameter",
+      mesh_.time().timeName(),
+      mesh_,
+      IOobject::NO_READ,
+      IOobject::AUTO_WRITE
+    ),
+    mesh_,
+    dimensionedScalar("a", dimless, 0.0)
   )
 {
 }
@@ -208,6 +221,8 @@ void Foam::vm4kModel::update
   tau_ = min(tau_, dimensionedScalar("a", dimTime, 1e-04));
   E1_ = - dissipation_ * tau_ / T_ / (1.0f - 4.0f * cd_ * tau_);
   E2_ = - E1_ / 3.0f / T_;
+
+  aParameter_ = dispersedPhase().d() * (F_& F_) / T_;
 };
 
 const Foam::phaseModel& Foam::vm4kModel::dispersedPhase() const
@@ -234,6 +249,12 @@ Foam::tmp<Foam::volScalarField> Foam::vm4kModel::kineticStress() const
     return rho_ * T_ * (1.0f + 7.0f * E1_ / 3.0f);
 }
 
+Foam::tmp<Foam::volScalarField> 
+Foam::vm4kModel::collisionalStressScalar() const
+{
+    return 4.0f * Foam::constant::mathematical::pi / 3.0f 
+      + 2.0 * Foam::constant::mathematical::pi / 15 * pow(aParameter_, 2);
+}
 // * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * * //
 
 // void Foam::vm4kModel::operator=(const vm4kModel& rhs)

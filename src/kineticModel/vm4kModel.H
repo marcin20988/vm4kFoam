@@ -72,6 +72,7 @@ class vm4kModel
         volScalarField E2_;
         volScalarField cd_;
         volScalarField tau_;
+        volScalarField aParameter_;
 
         //- Description of data_
 
@@ -107,6 +108,7 @@ public:
         const phaseModel& dispersedPhase() const;
 
         tmp<volScalarField> kineticStress() const;
+        tmp<volScalarField> collisionalStressScalar() const;
 
         //- Construct from components
         // vm4kModel(const dataType& data);

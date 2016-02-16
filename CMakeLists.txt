@@ -103,5 +103,5 @@ set_source_files_properties(filename.c PROPERTIES LANGUAGE CXX )
 add_subdirectory(src/kineticModel)
 
 #Solvers
-#add_subdirectory(solvers/kineticFoam)
+add_subdirectory(solvers/vm4kFoam)
 
