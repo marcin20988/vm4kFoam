@@ -37,6 +37,7 @@ Description
 #include "IOMRFZoneList.H"
 #include "fvIOoptionList.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
+#include "vm4kModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -75,6 +76,22 @@ int main(int argc, char *argv[])
         {
             fluid.solve();
             fluid.correct();
+            volScalarField T = VM4K.dispersedPhase().turbulence().k();
+            volScalarField gamma = VM4K.dispersedPhase().turbulence().epsilon();
+            volScalarField nu = VM4K.dispersedPhase().turbulence().nuEff();
+            volVectorField Urel = 
+                (
+                    VM4K.dispersedPhase().U()
+                    -
+                    VM4K.continuousPhase().U()
+                );
+            VM4K.update
+            (
+                T,
+                gamma,
+                nu,
+                Urel
+            );
 
             volScalarField contErr1
             (

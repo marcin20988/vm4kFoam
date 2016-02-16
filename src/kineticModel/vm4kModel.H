@@ -55,11 +55,12 @@ class vm4kModel;
 class vm4kModel
 {
     // Private data
-    protected: 
-        const dictionary vm4kModelDict_;
     private:
         const twoPhaseSystem& fluid_;
         const fvMesh& mesh_;
+    protected: 
+        const dictionary vm4kModelDict_;
+    private:
         const dimensionedVector g_;
         const word continuousPhaseName_;
         const word dispersedPhaseName_;
@@ -80,10 +81,10 @@ class vm4kModel
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-        vm4kModel(const vm4kModel&);
+        // vm4kModel(const vm4kModel&);
 
         //- Disallow default bitwise assignment
-        void operator=(const vm4kModel&);
+        // void operator=(const vm4kModel&);
 
 public:
 
@@ -94,9 +95,10 @@ public:
     // Constructors
 
         //- Construct null
-        vm4kModel();
+        // vm4kModel();
 
         vm4kModel(const twoPhaseSystem& fluid, const dimensionedVector& g);
+        
 
         void update(
             const volScalarField& T,
@@ -106,6 +108,7 @@ public:
         );
 
         const phaseModel& dispersedPhase() const;
+        const phaseModel& continuousPhase() const;
 
         tmp<volScalarField> kineticStress() const;
         tmp<volScalarField> collisionalStressScalar() const;
@@ -122,11 +125,11 @@ public:
     // Selectors
 
         //- Select null constructed
-        static autoPtr<vm4kModel> New();
+        // static autoPtr<vm4kModel> New();
 
 
     //- Destructor
-    ~vm4kModel();
+    // ~vm4kModel();
 
 
     // Member Functions

@@ -19,7 +19,7 @@ include_directories ("$ENV{FOAM_SRC}/fvOptions/lnInclude")
 include_directories ("$ENV{FOAM_SRC}/meshTools/lnInclude")
 include_directories ("$ENV{FOAM_SRC}/sampling/lnInclude")
 
-include_directories ("${PROJECT_SOURCE_DIR}/src/vm4kModel/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/kineticModel/")
 
 
 
@@ -39,6 +39,6 @@ target_link_openfoam_libraries(vm4kFoam
     fvOptions
     OpenFOAM)
 
-  #target_link_libraries(vm4kFoam vm4kModel)
+  target_link_libraries(vm4kFoam vm4kModel)
 
 set_target_properties(vm4kFoam PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$ENV{FOAM_USER_APPBIN}")

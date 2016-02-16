@@ -43,6 +43,8 @@ License
 
 Foam::vm4kModel::vm4kModel(
     const twoPhaseSystem& fluid, const dimensionedVector& g):
+  fluid_(fluid),
+  mesh_(fluid.mesh()),
   vm4kModelDict_
   (
    IOdictionary
@@ -56,9 +58,7 @@ Foam::vm4kModel::vm4kModel(
      IOobject::NO_WRITE
     )
    )
-  ),
-  fluid_(fluid),
-  mesh_(fluid.mesh()),
+  ),  
   g_(g),
   continuousPhaseName_(vm4kModelDict_.lookup("continuousPhase")),
   dispersedPhaseName_(vm4kModelDict_.lookup("dispersedPhase")),
@@ -105,7 +105,7 @@ Foam::vm4kModel::vm4kModel(
   (
     IOobject
     (
-      "kineticDissipation",
+      "meanDrag",
       mesh_.time().timeName(),
       mesh_,
       IOobject::NO_READ,
@@ -138,7 +138,7 @@ Foam::vm4kModel::vm4kModel(
       IOobject::AUTO_WRITE
     ),
     mesh_,
-    dimensionedScalar("a", dimless, 0.0)
+    dimensionedScalar("a", pow(dimVelocity, -2), 0.0)
   ),
   cd_
   (
@@ -180,6 +180,7 @@ Foam::vm4kModel::vm4kModel(
     dimensionedScalar("a", dimless, 0.0)
   )
 {
+  Foam::Info << "test" << Foam::endl;
 }
 
 // Foam::vm4kModel::vm4kModel(const vm4kModel&)
@@ -188,17 +189,17 @@ Foam::vm4kModel::vm4kModel(
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::vm4kModel>
-Foam::vm4kModel::New()
-{
-    return autoPtr<vm4kModel>(new vm4kModel);
-}
+// Foam::autoPtr<Foam::vm4kModel>
+// Foam::vm4kModel::New()
+// {
+//     return autoPtr<vm4kModel>(new vm4kModel);
+// }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::vm4kModel::~vm4kModel()
-{}
+// Foam::vm4kModel::~vm4kModel()
+// {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -208,21 +209,20 @@ void Foam::vm4kModel::update
     const volScalarField& T,
     const volScalarField& epsilon,
     const volScalarField& nu,
-    const volVectorField& F
+    const volVectorField& Urel
 )
 {
-   
   T_ = T;
   dissipation_ = epsilon;
   cd_ = - fluid_.dragCoeff() 
       / dispersedPhase().rho() * dispersedPhase();
-  F_ = F;
-  tau_ = nu / (T + 2.0 * cd_ * cd_);
-  tau_ = min(tau_, dimensionedScalar("a", dimTime, 1e-04));
+  F_ = cd_ * Urel;
+  tau_ = nu / (T * (1.0f + 2.0f * cd_ * tau_));
+  tau_ = max(tau_, dimensionedScalar("a", dimTime, 1e-04));
   E1_ = - dissipation_ * tau_ / T_ / (1.0f - 4.0f * cd_ * tau_);
   E2_ = - E1_ / 3.0f / T_;
 
-  aParameter_ = dispersedPhase().d() * (F_& F_) / T_;
+  aParameter_ = dispersedPhase().d() * sqrt(F_& F_) / T_;
 };
 
 const Foam::phaseModel& Foam::vm4kModel::dispersedPhase() const
@@ -267,6 +267,11 @@ Foam::vm4kModel::collisionalStressScalar() const
 //             << abort(FatalError);
 //     }
 // }
+
+const Foam::phaseModel& Foam::vm4kModel::continuousPhase() const
+{
+    return fluid_.otherPhase(dispersedPhase());
+}
 
 // * * * * * * * * * * * * * * Friend Functions  * * * * * * * * * * * * * * //
 
