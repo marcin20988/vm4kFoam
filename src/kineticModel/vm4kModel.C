@@ -209,9 +209,11 @@ void Foam::vm4kModel::update
     const volScalarField& T,
     const volScalarField& epsilon,
     const volScalarField& nu,
-    const volVectorField& Urel
+    const volVectorField& Urel,
+    const volScalarField& rho
 )
 {
+  rho_ = rho;
   T_ = T;
   dissipation_ = epsilon;
   cd_ = - fluid_.dragCoeff() 
@@ -252,8 +254,14 @@ Foam::tmp<Foam::volScalarField> Foam::vm4kModel::kineticStress() const
 Foam::tmp<Foam::volScalarField> 
 Foam::vm4kModel::collisionalStressScalar() const
 {
-    return 4.0f * Foam::constant::mathematical::pi / 3.0f 
-      + 2.0 * Foam::constant::mathematical::pi / 15 * pow(aParameter_, 2);
+    return 
+      g0() * T_ 
+      * 24.0f / Foam::constant::mathematical::pi
+      * rho_ * dispersedPhase()
+      * (
+        4.0f * Foam::constant::mathematical::pi / 3.0f 
+        + 2.0 * Foam::constant::mathematical::pi / 15 * pow(aParameter_, 2)
+      );
 }
 // * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * * //
 
@@ -273,6 +281,15 @@ const Foam::phaseModel& Foam::vm4kModel::continuousPhase() const
     return fluid_.otherPhase(dispersedPhase());
 }
 
+Foam::tmp<Foam::volScalarField> Foam::vm4kModel::g0() const
+{
+  const volScalarField alpha = dispersedPhase();
+  //return (2.0 - alpha) / (2.0 * pow(1.0 - alpha, 3));
+  return 1.0 / (1.0 - alpha)
+            + 3.0 * alpha / (2.0 * sqr(1.0 - alpha))
+            + sqr(alpha) / (2.0 * pow3(1.0 - alpha))
+            ;
+}
 // * * * * * * * * * * * * * * Friend Functions  * * * * * * * * * * * * * * //
 
 

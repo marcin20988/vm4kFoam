@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
                 T,
                 gamma,
                 nu,
-                Urel
+                Urel,
+                VM4K.dispersedPhase().rho()
             );
 
             volScalarField contErr1

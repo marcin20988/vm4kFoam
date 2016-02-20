@@ -104,13 +104,15 @@ public:
             const volScalarField& T,
             const volScalarField& epsilon,
             const volScalarField& nu,
-            const volVectorField& F
+            const volVectorField& F,
+            const volScalarField& rho
         );
 
         const phaseModel& dispersedPhase() const;
         const phaseModel& continuousPhase() const;
 
         tmp<volScalarField> kineticStress() const;
+        tmp<volScalarField> g0() const;
         tmp<volScalarField> collisionalStressScalar() const;
 
         //- Construct from components
