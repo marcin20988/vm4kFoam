@@ -251,6 +251,24 @@ Foam::tmp<Foam::volScalarField> Foam::vm4kModel::kineticStress() const
     return rho_ * T_ * (1.0f + 7.0f * E1_ / 3.0f);
 }
 
+
+Foam::tmp<Foam::volTensorField>
+Foam::vm4kModel::collisionalStress() const
+{
+  dimensionedScalar smallF
+    ("smallF", F_.dimensions(), 1.0e-04) ;
+
+  volVectorField zhat = F_ / (mag(F_) + smallF);
+
+  return 
+    // (1) => zz 4 pi / 15 a^2
+    zhat * zhat
+    * 24.0f / Foam::constant::mathematical::pi
+    * g0() * T_ * rho_ * dispersedPhase()
+    * 4.0 * Foam::constant::mathematical::pi / 15 * pow(aParameter_, 2);
+}
+
+// Consists of (1) => first term and (3)
 Foam::tmp<Foam::volScalarField> 
 Foam::vm4kModel::collisionalStressScalar() const
 {
@@ -260,7 +278,7 @@ Foam::vm4kModel::collisionalStressScalar() const
       * rho_ * dispersedPhase()
       * (
         4.0f * Foam::constant::mathematical::pi / 3.0f 
-        + 2.0 * Foam::constant::mathematical::pi / 15 * pow(aParameter_, 2)
+        + 4.0 * Foam::constant::mathematical::pi / 15 * pow(aParameter_, 2)
       );
 }
 // * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * * //

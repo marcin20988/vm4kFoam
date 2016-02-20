@@ -114,6 +114,7 @@ public:
         tmp<volScalarField> kineticStress() const;
         tmp<volScalarField> g0() const;
         tmp<volScalarField> collisionalStressScalar() const;
+        tmp<volTensorField> collisionalStress() const;
 
         //- Construct from components
         // vm4kModel(const dataType& data);

@@ -76,7 +76,10 @@ int main(int argc, char *argv[])
         {
             fluid.solve();
             fluid.correct();
-            volScalarField T = VM4K.dispersedPhase().turbulence().k();
+            volScalarField T 
+                = 
+                2.0 / 3.0 *
+                VM4K.dispersedPhase().turbulence().k();
             volScalarField gamma = VM4K.dispersedPhase().turbulence().epsilon();
             volScalarField nu = VM4K.dispersedPhase().turbulence().nuEff();
             volVectorField Urel = 

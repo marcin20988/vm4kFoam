@@ -5,13 +5,19 @@ mrfZones.correctBoundaryVelocity(U);
 fvVectorMatrix U1Eqn(U1, rho1.dimensions()*U1.dimensions()*dimVol/dimTime);
 fvVectorMatrix U2Eqn(U2, rho2.dimensions()*U2.dimensions()*dimVol/dimTime);
 
-// volScalarField pVM4K = VM4K.kineticStress();
+//----------------VM4k stuff------------------------------------------
 volScalarField pVM4K = VM4K.collisionalStressScalar();
-volVectorField fVM4K = fvc::grad(pVM4K);
+// volVectorField fVM4K = fvc::grad(pVM4K);
+
+volTensorField tVM4K = VM4K.collisionalStress();
+
+volVectorField fVM4K 
+  = 
+  fvc::div(tVM4K, "div(tVM4K)")
+  + fvc::grad(pVM4K);
+
 volVectorField fZero = fVM4K * 0.0;
 
-Info << phase1.name() << endl;
-Info << phase2.name() << endl;
 volVectorField fVM4K_phase1 
   (
     "fVM4K_phase1",
@@ -30,12 +36,13 @@ fVM4K_phase2 *= alpha2;
 if(mesh.time().outputTime())
 {
   volVectorField fVM4K_write("fVM4K", fVM4K);
-  volScalarField pVM4K_write("pVM4K", pVM4K);
-  pVM4K_write.write();
+  // volScalarField pVM4K_write("pVM4K", pVM4K);
+  // pVM4K_write.write();
   fVM4K_write.write();
   fVM4K_phase2.write();
   fVM4K_phase1.write();
 }
+//----------------VM4k stuff------------------------------------------
 
 volScalarField dragCoeff(fluid.dragCoeff());
 
