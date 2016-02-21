@@ -1,0 +1,145 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (cont disp);
+
+cont
+{
+	diameterModel constant;
+	constantCoeffs
+	{
+		d               1e-3;
+	}
+}
+
+disp
+{
+	diameterModel   constant;
+	constantCoeffs
+	{
+		d               1e-03;//0.5mm
+	}
+}
+
+sigma
+(
+    (disp and cont)     0.00
+);
+
+aspectRatio
+(
+);
+
+virtualMass
+(
+    (disp in cont)
+    {
+    	type	constantCoefficient;
+	Cvm	0.5;
+    }
+    (cont in disp)
+    {
+	    type	constantCoefficient;
+	Cvm	0.5;
+    }
+);
+
+drag
+(
+    (disp in cont)
+    {
+        type SchillerNaumann;
+        residualAlpha 1e-6;
+        residualRe 1e-3;
+	swarmCorrection
+	{
+		type	none;
+	}
+    }
+    (cont in disp)
+    {
+        type SchillerNaumann;
+	residualAlpha 1e-6;
+	residualRe 1e-3;
+	swarmCorrection
+	{
+		type	none;
+	}
+    }
+);
+
+heatTransfer
+(
+	(disp in cont)
+	{
+		type	RanzMarshall;
+		residualAlpha 0.0001;
+	}
+	(cont in disp)
+	{
+		type	RanzMarshall;
+		residualAlpha 0.0001;
+	}
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+    /*(disp in cont)
+    {
+      type	Antal;
+      Cw1	-0.104;
+      Cw2	0.147;
+    }*/
+    /*(cont in disp)
+    {
+      type	Antal;
+      Cw1	-0.104;
+      Cw2	0.147;
+    }*/
+);
+
+turbulentDispersion
+(
+    /*(disp in cont)*/
+    /*{*/
+      /*type	Gosman;*/
+      /*sigma	0.7;*/
+    /*}*/
+    /*(cont in disp)*/
+    /*{*/
+      /*type	Gosman;*/
+      /*sigma	0.7;*/
+    /*}*/
+);
+
+pMin	0;
+
+blending
+{
+	default
+	{
+		type		none;
+		residualAlpha	1e-3;
+		continuousPhase	cont;
+	}
+}
+
+// ************************************************************************* //
